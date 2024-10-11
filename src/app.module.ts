@@ -1,10 +1,31 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigModule } from '@nestjs/config';
+import { LoggerModule } from 'nestjs-pino';
+import { MindmapModule } from './mindmap/mindmap.module';
+import * as Joi from 'joi';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: Joi.object({
+        OPENAI_API_KEY: Joi.string().required(),
+        PORT: Joi.number().default(4000),
+      }),
+    }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            singleLine: true,
+          },
+        },
+      },
+    }),
+    MindmapModule,
+  ],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
