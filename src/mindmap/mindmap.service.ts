@@ -20,6 +20,7 @@ import { ChatMindmapDto } from './dto/chat-mindmap.dto';
 import { AIMessage, HumanMessage } from '@langchain/core/messages';
 import { EditMindmapDto } from './dto/edit-mindmap.dto';
 import { GenQuizDto } from './dto/gen-quiz.dto';
+import { SuggestNoteDto } from './dto/suggest-note.dto';
 
 @Injectable()
 export class MindmapService {
@@ -176,6 +177,7 @@ export class MindmapService {
         7. Do not have any comment (remove all "%% comment") in mermaid.
         8. The language used in mindmap must be the same with the language used in the user's input
         9. Use icons at the begin on nodes' name to make the mindmap more exciting.
+        10.If there are documents context, You are only allowed to use the information contained in this resource. Absolutely not create other information outside the document
         
         {context}`,
       'user',
@@ -258,6 +260,49 @@ export class MindmapService {
 
     const res = await chain.invoke({
       input: `Please generate a quiz with ${genQuizDto.questionNumber} question based on these nodes: ${nodesToString(genQuizDto.slectedNodes)}. Full mermaid diagram: ${parseMermaidCode(genQuizDto.mermaid)}`,
+      context,
+    });
+
+    return res;
+  }
+
+  async suggest(suggestNoteDto: SuggestNoteDto) {
+    const prompt = ChatPromptTemplate.fromMessages([
+      'system',
+      `You are an information analysis expert. Your task is to help users learn information from a mind map based on your document or knowledge source with the following requirements:
+        1. Output format is markdown.
+        2. The language used in answer must be the same with the language used in the user's mindmap.
+        3. Answers have a specific layout structure.
+        4. It is allowed to refer to the mermaid diagram to understand the content of the mindmap, however, it is only allowed to answer questions related to the nodes selected by the user.
+        5. If there are documents context, you are only allowed to answer the knowledge contained in the documents and mermaid. Absolutely do not arbitrarily create answers
+        6. Do not include selected nodes in the answer
+
+        {context}`,
+      'user',
+      '{input}',
+    ]);
+
+    const llm = new ChatOpenAI({
+      model: suggestNoteDto.llm,
+    });
+
+    let context: DocumentInterface<Record<string, any>>[] = [];
+
+    if (suggestNoteDto.type === MindmapType.SUMMARY) {
+      const docs = await getDocFromUrl(
+        suggestNoteDto.document.url,
+        suggestNoteDto.document.type,
+      );
+
+      const retrieval = await this.ragSerivice.getRetrieval(docs);
+
+      context = await retrieval.invoke('');
+    }
+
+    const chain = prompt.pipe(llm).pipe(new StringOutputParser());
+
+    const res = await chain.invoke({
+      input: `Please help me find out information about this node ${nodesToString([suggestNoteDto.selectedNode])}, based on mindmap ${parseMermaidCode(suggestNoteDto.mermaid)}`,
       context,
     });
 

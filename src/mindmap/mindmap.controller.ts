@@ -12,6 +12,7 @@ import { MindmapType } from 'src/constant';
 import { ChatMindmapDto } from './dto/chat-mindmap.dto';
 import { EditMindmapDto } from './dto/edit-mindmap.dto';
 import { GenQuizDto } from './dto/gen-quiz.dto';
+import { SuggestNoteDto } from './dto/suggest-note.dto';
 
 @ApiTags('mindmap')
 @Controller('mindmap')
@@ -46,5 +47,11 @@ export class MindmapController {
   @ApiResponse({ status: 200 })
   async genQuiz(@Body() genQuizDto: GenQuizDto) {
     return await this.mindmapService.genQuiz(genQuizDto);
+  }
+
+  @Post('suggest-note')
+  @ApiResponse({ status: 200 })
+  async suggestNote(@Body() suggestNoteDto: SuggestNoteDto) {
+    return await this.mindmapService.suggest(suggestNoteDto);
   }
 }

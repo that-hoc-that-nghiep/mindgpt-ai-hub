@@ -32,7 +32,7 @@ export const extractMermaidCode = (output: string) => {
 };
 
 export const nodesToString = (selectedNodes: SelectedNodeDto[]) => {
-  return selectedNodes.map((node) => `${node.id}["${node.name}"]`);
+  return selectedNodes.map((node) => `${node.id}["${node.name}"]`).join(', ');
 };
 
 export const parseMermaidCode = (output: string) => {
