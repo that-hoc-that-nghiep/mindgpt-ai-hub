@@ -19,6 +19,7 @@ import { DocumentInterface } from '@langchain/core/documents';
 import { ChatMindmapDto } from './dto/chat-mindmap.dto';
 import { AIMessage, HumanMessage } from '@langchain/core/messages';
 import { EditMindmapDto } from './dto/edit-mindmap.dto';
+import { GenQuizDto } from './dto/gen-quiz.dto';
 
 @Injectable()
 export class MindmapService {
@@ -55,6 +56,7 @@ export class MindmapService {
         7. Do not have any comment (remove all "%% comment") in mermaid.
         8. The language used in mindmap must be the same with the language used in the user's input
         9. Use icons at the begin on nodes' name to make the mindmap more exciting.
+        10.If there are documents context, You are only allowed to use the information contained in this resource. Absolutely not create other information outside the document
         
         {context}`,
       'user',
@@ -205,5 +207,60 @@ export class MindmapService {
     });
 
     return extractMermaidCode(res);
+  }
+
+  async genQuiz(genQuizDto: GenQuizDto) {
+    const prompt = ChatPromptTemplate.fromMessages([
+      'system',
+      `You are an expert mindmap designer and your task is generate a quiz to help them memorize the core ideas and their relationships based on the user's mindmap with following requirements:
+        1. Output format is markdown:
+          ### What is his name?
+            - Answer 1
+            - Answer 2
+            - Answer 3
+            - Answer 4
+          ### How old is he?
+            - Answer 1
+            - Answer 2
+            - Answer 3
+            - Answer 4
+        2. Questions can only be created related to the nodes the user selects. Absolutely do not create questions from other nodes. Mermaid diagrams are only used to understand context.
+        3. Only one correct answer, the remaining answers are not too ridiculous will make the question easy.
+        4. The language used in question and answer must be the same with the language used in the mermaid input.
+        5. You can use icons to make the question more exciting.
+        6.If there are documents context, You are only allowed to use the information contained in this resource. Absolutely not create other information outside the document (except for wrong answers).
+        7. Just generate the question and answer according to the mardown structure above, no need for additional opening or closing context.
+        8. Generate questions only the exact number of questions requested by the user is allowed.
+
+        {context}`,
+      'user',
+      '{input}',
+    ]);
+
+    const llm = new ChatOpenAI({
+      model: genQuizDto.llm,
+    });
+
+    let context: DocumentInterface<Record<string, any>>[] = [];
+
+    if (genQuizDto.type === MindmapType.SUMMARY) {
+      const docs = await getDocFromUrl(
+        genQuizDto.document.url,
+        genQuizDto.document.type,
+      );
+
+      const retrieval = await this.ragSerivice.getRetrieval(docs);
+
+      context = await retrieval.invoke('');
+    }
+
+    const chain = prompt.pipe(llm).pipe(new StringOutputParser());
+
+    const res = await chain.invoke({
+      input: `Please generate a quiz with ${genQuizDto.questionNumber} question based on these nodes: ${nodesToString(genQuizDto.slectedNodes)}. Full mermaid diagram: ${parseMermaidCode(genQuizDto.mermaid)}`,
+      context,
+    });
+
+    return res;
   }
 }
