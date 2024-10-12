@@ -1,15 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
-import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
-import { SupabaseVectorStore } from '@langchain/community/vectorstores/supabase';
-import { createStuffDocumentsChain } from 'langchain/chains/combine_documents';
 import { CreateMindmapDto } from './dto/create-mindmap.dto';
-import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai';
+import { ChatOpenAI } from '@langchain/openai';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { extractMermaidCode } from 'src/utils/parser';
 import { Env, MindmapType } from 'src/constant';
-import { getArrayNumber, getDocFromUrl } from 'src/utils/file';
-import { createClient } from '@supabase/supabase-js';
+import { getDocFromUrl } from 'src/utils/file';
 import { ConfigService } from '@nestjs/config';
 import { RagService } from 'src/rag/rag.service';
 import { DocumentInterface } from '@langchain/core/documents';
@@ -69,15 +65,16 @@ export class MindmapService {
 
       const retrieval = await this.ragSerivice.getRetrieval(docs);
 
-      context = await retrieval.invoke(
-        'I want to summarize the following documents:',
-      );
+      context = await retrieval.invoke('');
     }
 
     const chain = prompt.pipe(llm).pipe(new StringOutputParser());
 
     const res = await chain.invoke({
-      input: createMindmapDto.prompt,
+      input:
+        createMindmapDto.type === MindmapType.CREATIVE
+          ? createMindmapDto.prompt
+          : 'Summary this document, the language of mindmap content is same as document language',
       depth: createMindmapDto.depth,
       child: createMindmapDto.child,
       context,
