@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 import { MindmapModule } from './mindmap/mindmap.module';
+import { RagModule } from './rag/rag.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -24,6 +25,7 @@ import * as Joi from 'joi';
       },
     }),
     MindmapModule,
+    RagModule,
   ],
   controllers: [],
   providers: [],

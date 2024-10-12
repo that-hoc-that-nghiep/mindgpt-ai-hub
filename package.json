@@ -21,6 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@langchain/community": "^0.3.4",
     "@langchain/core": "^0.3.9",
     "@langchain/langgraph": "^0.2.14",
     "@langchain/openai": "^0.3.5",
@@ -35,6 +36,7 @@
     "joi": "^17.13.3",
     "join": "^3.0.0",
     "nestjs-pino": "^4.1.0",
+    "pdf-parse": "^1.1.1",
     "pino-http": "^10.3.0",
     "pino-pretty": "^11.2.2",
     "reflect-metadata": "^0.2.0",

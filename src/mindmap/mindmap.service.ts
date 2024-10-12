@@ -3,14 +3,14 @@ import {
   ChatPromptTemplate,
   MessagesPlaceholder,
 } from '@langchain/core/prompts';
-import { CreateCreativeMindmapDto } from './dto/create-creative-mindmap.dto';
+import { CreateMindmapDto } from './dto/create-mindmap.dto';
 import { ChatOpenAI } from '@langchain/openai';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { extractMermaidCode } from 'src/utils/parser';
 
 @Injectable()
 export class MindmapService {
-  async create(createCreativeMindmapDto: CreateCreativeMindmapDto) {
+  async create(createMindmapDto: CreateMindmapDto) {
     const prompt = ChatPromptTemplate.fromMessages([
       'system',
       `You are an expert mindmap designer and your task is to design an intuitive, detailed and easy-to-understand mindmap for summarizing documents or knowledge with following requirements:
@@ -43,13 +43,13 @@ export class MindmapService {
     ]);
 
     const chain = prompt
-      .pipe(new ChatOpenAI({ model: createCreativeMindmapDto.llm }))
+      .pipe(new ChatOpenAI({ model: createMindmapDto.llm }))
       .pipe(new StringOutputParser());
 
     const res = await chain.invoke({
-      input: createCreativeMindmapDto.prompt,
-      depth: createCreativeMindmapDto.depth,
-      child: createCreativeMindmapDto.child,
+      input: createMindmapDto.prompt,
+      depth: createMindmapDto.depth,
+      child: createMindmapDto.child,
     });
 
     return extractMermaidCode(res);
