@@ -1,3 +1,9 @@
+export const Env: Record<string, string> = {
+  OPENAI_API_KEY: 'OPENAI_API_KEY',
+  SUPABASE_URL: 'SUPABASE_URL',
+  SUPABASE_KEY: 'SUPABASE_KEY',
+};
+
 export enum MindmapType {
   CREATIVE = 'creative',
   SUMMARY = 'summary',

@@ -11,6 +11,8 @@ import * as Joi from 'joi';
       isGlobal: true,
       validationSchema: Joi.object({
         OPENAI_API_KEY: Joi.string().required(),
+        SUPABASE_URL: Joi.string().required(),
+        SUPABASE_KEY: Joi.string().required(),
         PORT: Joi.number().default(4000),
       }),
     }),

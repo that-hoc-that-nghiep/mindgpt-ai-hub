@@ -1,15 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import {
-  ChatPromptTemplate,
-  MessagesPlaceholder,
-} from '@langchain/core/prompts';
+import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
+import { SupabaseVectorStore } from '@langchain/community/vectorstores/supabase';
+import { createStuffDocumentsChain } from 'langchain/chains/combine_documents';
 import { CreateMindmapDto } from './dto/create-mindmap.dto';
-import { ChatOpenAI } from '@langchain/openai';
+import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { extractMermaidCode } from 'src/utils/parser';
+import { Env, MindmapType } from 'src/constant';
+import { getArrayNumber, getDocFromUrl } from 'src/utils/file';
+import { createClient } from '@supabase/supabase-js';
+import { ConfigService } from '@nestjs/config';
+import { RagService } from 'src/rag/rag.service';
+import { DocumentInterface } from '@langchain/core/documents';
 
 @Injectable()
 export class MindmapService {
+  constructor(
+    private readonly configSerivce: ConfigService<typeof Env, true>,
+    private readonly ragSerivice: RagService,
+  ) {}
   async create(createMindmapDto: CreateMindmapDto) {
     const prompt = ChatPromptTemplate.fromMessages([
       'system',
@@ -35,21 +45,42 @@ export class MindmapService {
         3. Always include Node IDs and wrap Node names in quotes (e.g., A["Central Concept"]).
         4. The depth of the mindmap should be {depth} levels and each parent node must have {child} child nodes (except master node).
         5. Separate the node and edge definitions, list nodes first and then connect them by edges (-->). Each child node is only allowed to have one parent node.
-        6. Do not have any comment in mindmap.
-        7. The language used in mindmap must be the same with the language used in the user's input
-        8. Use icons at the begin on nodes' name to make the mindmap more exciting.`,
+        6. Make sure all the nodes and edges are connected (e.g., A --> B, B --> C, C --> D, D --> E, E --> F, F --> G).
+        7. Do not have any comment in mindmap.
+        8. The language used in mindmap must be the same with the language used in the user's input
+        9. Use icons at the begin on nodes' name to make the mindmap more exciting.
+        
+        {context}`,
       'user',
       '{input}',
     ]);
 
-    const chain = prompt
-      .pipe(new ChatOpenAI({ model: createMindmapDto.llm }))
-      .pipe(new StringOutputParser());
+    const llm = new ChatOpenAI({
+      model: createMindmapDto.llm,
+    });
+
+    let context: DocumentInterface<Record<string, any>>[] = [];
+
+    if (createMindmapDto.type === MindmapType.SUMMARY) {
+      const docs = await getDocFromUrl(
+        createMindmapDto.document.url,
+        createMindmapDto.document.type,
+      );
+
+      const retrieval = await this.ragSerivice.getRetrieval(docs);
+
+      context = await retrieval.invoke(
+        'I want to summarize the following documents:',
+      );
+    }
+
+    const chain = prompt.pipe(llm).pipe(new StringOutputParser());
 
     const res = await chain.invoke({
       input: createMindmapDto.prompt,
       depth: createMindmapDto.depth,
       child: createMindmapDto.child,
+      context,
     });
 
     return extractMermaidCode(res);

@@ -30,7 +30,7 @@ export class CreateMindmapDto {
   document: MindmapDocument | null;
 
   @ApiProperty({
-    default: 'Create mindmap about ExpressJS and MongoDB',
+    default: 'Summary about Dao Xuan Quy',
   })
   @IsString()
   prompt: string;
@@ -45,7 +45,7 @@ export class CreateMindmapDto {
 
   @ApiProperty({
     minimum: 1,
-    default: 1,
+    default: 3,
   })
   @IsNumber()
   @IsOptional()
