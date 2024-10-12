@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import { SelectedNodeDto } from 'src/mindmap/dto/selected-node.dto';
 
 async function* toLine(
@@ -32,4 +33,17 @@ export const extractMermaidCode = (output: string) => {
 
 export const nodesToString = (selectedNodes: SelectedNodeDto[]) => {
   return selectedNodes.map((node) => `${node.id}["${node.name}"]`);
+};
+
+export const parseMermaidCode = (output: string) => {
+  try {
+    // Replace all newlines with \n
+    const replaceNewlines = output.replace(/\\n/g, '\n');
+    // Replace all \" to "
+    const parseQuote = replaceNewlines.replace(/\\"/g, '"');
+
+    return parseQuote;
+  } catch (error) {
+    throw new BadRequestException(error.message);
+  }
 };

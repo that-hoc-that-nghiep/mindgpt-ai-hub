@@ -6,7 +6,11 @@ import {
 import { CreateMindmapDto } from './dto/create-mindmap.dto';
 import { ChatOpenAI } from '@langchain/openai';
 import { StringOutputParser } from '@langchain/core/output_parsers';
-import { extractMermaidCode, nodesToString } from 'src/utils/parser';
+import {
+  extractMermaidCode,
+  nodesToString,
+  parseMermaidCode,
+} from 'src/utils/parser';
 import { Env, MindmapType } from 'src/constant';
 import { getDocFromUrl } from 'src/utils/file';
 import { ConfigService } from '@nestjs/config';
@@ -97,7 +101,7 @@ export class MindmapService {
         2. The language used in answer must be the same with the language used in the user's input.
         3. Answers have a specific layout structure.
         4. It is allowed to refer to the mermaid diagram to understand the content of the mindmap, however, it is only allowed to answer questions related to the nodes selected by the user.
-        5. If there are documents context, you are only allowed to answer the knowledge contained in the documents. Absolutely do not arbitrarily create answers
+        5. If there are documents context, you are only allowed to answer the knowledge contained in the documents and mermaid. Absolutely do not arbitrarily create answers
         6. Do not include selected nodes in the answer
 
         {context}`,
@@ -126,7 +130,7 @@ export class MindmapService {
     const chain = prompt.pipe(llm).pipe(new StringOutputParser());
 
     const res = await chain.invoke({
-      input: `${chatMindmapDto.prompt}. Please look at these nodes: ${nodesToString(chatMindmapDto.slectedNodes)}`,
+      input: `${chatMindmapDto.prompt}. Please look at these nodes: ${nodesToString(chatMindmapDto.slectedNodes)}. Full mermaid diagram: ${parseMermaidCode(chatMindmapDto.mermaid)}`,
       chatHistory: chatMindmapDto.conversation.map((message) => {
         if (message.role === 'user') {
           return new HumanMessage(message.content);
