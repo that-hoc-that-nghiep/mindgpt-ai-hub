@@ -1,9 +1,16 @@
-import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  BadRequestException,
+  Put,
+} from '@nestjs/common';
 import { MindmapService } from './mindmap.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateMindmapDto } from './dto/create-mindmap.dto';
 import { MindmapType } from 'src/constant';
 import { ChatMindmapDto } from './dto/chat-mindmap.dto';
+import { EditMindmapDto } from './dto/edit-mindmap.dto';
 
 @ApiTags('mindmap')
 @Controller('mindmap')
@@ -26,5 +33,11 @@ export class MindmapController {
   @ApiResponse({ status: 200 })
   async chat(@Body() chatMindmapDto: ChatMindmapDto) {
     return await this.mindmapService.chat(chatMindmapDto);
+  }
+
+  @Put('edit')
+  @ApiResponse({ status: 200 })
+  async edit(@Body() editMindmapDto: EditMindmapDto) {
+    return await this.mindmapService.edit(editMindmapDto);
   }
 }

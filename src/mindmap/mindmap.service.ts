@@ -18,6 +18,7 @@ import { RagService } from 'src/rag/rag.service';
 import { DocumentInterface } from '@langchain/core/documents';
 import { ChatMindmapDto } from './dto/chat-mindmap.dto';
 import { AIMessage, HumanMessage } from '@langchain/core/messages';
+import { EditMindmapDto } from './dto/edit-mindmap.dto';
 
 @Injectable()
 export class MindmapService {
@@ -142,5 +143,67 @@ export class MindmapService {
     });
 
     return res;
+  }
+
+  async edit(editMindmapDto: EditMindmapDto) {
+    const prompt = ChatPromptTemplate.fromMessages([
+      'system',
+      `You are an expert mindmap designer and your task is edit an existing mindmap based on the user's input with following requirements:
+        1. Changes are only allowed to the nodes that the user has selected and requested. Absolutely do not edit other nodes.
+        2. The mindmap should help users grasp the core ideas and their relationships quickly.
+        3. Use Mermaid syntax to visualize the mindmap, including components such as the central concept, main topics, and subtopics. The graph should be undirected and hierarchical. (e.g:
+          graph TB
+          A["📘 Toán 12"]
+          B["📏 Hình học không gian"]
+          C["📐 Đại số"]
+          D["📊 Hình học tọa độ"]
+          E["📈 Phương trình bậc hai"]
+          F["📌 Cấp số cộng"]
+          G["📌 Cấp số nhân"]
+
+          A --> B
+          A --> C
+          B --> D
+          B --> E
+          C --> F
+          C --> G
+        )
+        4. Always include Node IDs and wrap Node names in quotes (e.g., A["Central Concept"]).
+        5. Separate the node and edge definitions, list nodes first and then connect them by edges (-->). Each child node is only allowed to have one parent node.
+        6. Make sure all the nodes and edges are connected (e.g., A --> B, B --> C, C --> D, D --> E, E --> F, F --> G).
+        7. Do not have any comment (remove all "%% comment") in mermaid.
+        8. The language used in mindmap must be the same with the language used in the user's input
+        9. Use icons at the begin on nodes' name to make the mindmap more exciting.
+        
+        {context}`,
+      'user',
+      '{input}',
+    ]);
+
+    const llm = new ChatOpenAI({
+      model: editMindmapDto.llm,
+    });
+
+    let context: DocumentInterface<Record<string, any>>[] = [];
+
+    if (editMindmapDto.type === MindmapType.SUMMARY) {
+      const docs = await getDocFromUrl(
+        editMindmapDto.document.url,
+        editMindmapDto.document.type,
+      );
+
+      const retrieval = await this.ragSerivice.getRetrieval(docs);
+
+      context = await retrieval.invoke('');
+    }
+
+    const chain = prompt.pipe(llm).pipe(new StringOutputParser());
+
+    const res = await chain.invoke({
+      input: `${editMindmapDto.prompt}. Please edit at these nodes: ${nodesToString(editMindmapDto.slectedNodes)}. Full mermaid diagram: ${parseMermaidCode(editMindmapDto.mermaid)}`,
+      context,
+    });
+
+    return extractMermaidCode(res);
   }
 }
