@@ -7,28 +7,10 @@ import {
   IsString,
 } from 'class-validator';
 import { LLMModel, MindmapType } from 'src/constant';
-import { MindmapDocument } from './mindmapDocument.dto';
+import { MindmapDocument } from './mindmap-document.dto';
+import { BaseMindmapDto } from './base-mindmap.dto';
 
-export class CreateMindmapDto {
-  @ApiProperty({
-    enum: LLMModel,
-  })
-  @IsEnum(LLMModel)
-  llm: LLMModel;
-
-  @ApiProperty({
-    enum: MindmapType,
-  })
-  @IsEnum(MindmapType)
-  type: MindmapType;
-
-  @ApiProperty({
-    type: () => MindmapDocument || null,
-  })
-  @IsOptional()
-  @IsObject()
-  document: MindmapDocument | null;
-
+export class CreateMindmapDto extends BaseMindmapDto {
   @ApiProperty({
     default: 'Summary about Dao Xuan Quy',
   })
