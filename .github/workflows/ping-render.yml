@@ -1,0 +1,14 @@
+name: Render Activity Scheduler
+
+on:
+    schedule:
+        - cron: "*/13 * * * *" # Runs every 13 minus
+    workflow_dispatch:
+
+jobs:
+    send-http-request:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Send HTTP Request
+              run: curl https://aihub.mind-gpt.online/ping
