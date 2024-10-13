@@ -2,7 +2,7 @@ name: Render Activity Scheduler
 
 on:
     schedule:
-        - cron: "*/13 * * * *" # Runs every 13 minus
+        - cron: "* * * * *" # Runs every 13 minus
     workflow_dispatch:
 
 jobs:
