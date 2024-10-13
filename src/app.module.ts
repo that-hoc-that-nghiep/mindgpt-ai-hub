@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 import { MindmapModule } from './mindmap/mindmap.module';
@@ -29,7 +30,7 @@ import * as Joi from 'joi';
     MindmapModule,
     RagModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [],
 })
 export class AppModule {}
