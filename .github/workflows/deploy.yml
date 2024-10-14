@@ -18,8 +18,9 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Archive project files
-        run: tar -czf app.tar.gz .
+      - name: Archive project files (ignore changes)
+        run: |
+          tar --exclude='./node_modules' --exclude='./.git' --ignore-failed-read -czf app.tar.gz .
 
       - name: Copy archive to EC2
         run: |
