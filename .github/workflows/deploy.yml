@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  deploy:
     runs-on: self-hosted
 
     steps:
@@ -27,12 +27,11 @@ jobs:
         env:
           SECRET: ${{ secrets.ENV }}
 
-      - name: Build docker images
-        run: sudo docker-compose build app
+      - name: Install node_modules
+        run: npm i
 
-  deploy:
-    needs: build
-    runs-on: self-hosted
-    steps:
-      - name: Deploy docker images
-        run: sudo docker-compose up app -d
+      - name: Build project
+        run: npm run build
+
+      - name: Run project
+        run: npm run start
