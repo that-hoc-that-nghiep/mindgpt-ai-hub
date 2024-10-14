@@ -86,15 +86,22 @@ export class MindmapService {
 
     const chain = prompt.pipe(llm).pipe(new StringOutputParser());
 
-    const res = await chain.invoke({
-      input:
-        createMindmapDto.type === MindmapType.CREATIVE
-          ? createMindmapDto.prompt
-          : 'Summary this document, the language of mindmap content is same as document language',
-      depth: createMindmapDto.depth,
-      child: createMindmapDto.child,
-      context,
-    });
+    const res = await chain.invoke(
+      {
+        input:
+          createMindmapDto.type === MindmapType.CREATIVE
+            ? createMindmapDto.prompt
+            : 'Summary this document, the language of mindmap content is same as document language',
+        depth: createMindmapDto.depth,
+        child: createMindmapDto.child,
+        context,
+      },
+      {
+        timeout: 20000,
+      },
+    );
+
+    console.log(AIResponseDto.of(extractMermaidCode(res), ids));
 
     return AIResponseDto.of(extractMermaidCode(res), ids);
   }

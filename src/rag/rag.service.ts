@@ -31,6 +31,7 @@ export class RagService {
     const vectorStore = new SupabaseVectorStore(embeddings, {
       client: supabase,
       tableName: 'all_documents',
+      queryName: 'match_documents',
     });
 
     const splitter = new RecursiveCharacterTextSplitter({

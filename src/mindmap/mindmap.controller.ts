@@ -6,6 +6,7 @@ import {
   Put,
   Logger,
   Res,
+  HttpStatus,
 } from '@nestjs/common';
 import { MindmapService } from './mindmap.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -36,10 +37,12 @@ export class MindmapController {
       ) {
         throw new BadRequestException('Document is required in summary type');
       }
-      return await this.mindmapService.create(createMindmapDto);
+      return res
+        .status(HttpStatus.CREATED)
+        .json(await this.mindmapService.create(createMindmapDto));
     } catch (error) {
       this.logger.error(error);
-      return res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         message: 'Internal server error',
       });
     }
@@ -55,10 +58,12 @@ export class MindmapController {
       ) {
         throw new BadRequestException('Document is required in summary type');
       }
-      return await this.mindmapService.chat(chatMindmapDto);
+      return res
+        .status(HttpStatus.OK)
+        .json(await this.mindmapService.chat(chatMindmapDto));
     } catch (error) {
       this.logger.error(error);
-      return res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         message: 'Internal server error',
       });
     }
@@ -74,10 +79,12 @@ export class MindmapController {
       ) {
         throw new BadRequestException('Document is required in summary type');
       }
-      return await this.mindmapService.edit(editMindmapDto);
+      return res
+        .status(HttpStatus.OK)
+        .json(await this.mindmapService.edit(editMindmapDto));
     } catch (error) {
       this.logger.error(error);
-      return res.status(500).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         message: 'Internal server error',
       });
     }
@@ -86,20 +93,22 @@ export class MindmapController {
   @Post('gen-quiz')
   @ApiResponse({ status: 200 })
   async genQuiz(@Body() genQuizDto: GenQuizDto, @Res() res: Response) {
-    // try {
-    //   if (
-    //     genQuizDto.type === MindmapType.SUMMARY &&
-    //     genQuizDto.document === null
-    //   ) {
-    //     throw new BadRequestException('Document is required in summary type');
-    //   }
-    return await this.mindmapService.genQuiz(genQuizDto);
-    // } catch (error) {
-    //   this.logger.error(error);
-    //   return res.status(500).json({
-    //     message: 'Internal server error',
-    //   });
-    // }
+    try {
+      if (
+        genQuizDto.type === MindmapType.SUMMARY &&
+        genQuizDto.document === null
+      ) {
+        throw new BadRequestException('Document is required in summary type');
+      }
+      return res
+        .status(HttpStatus.CREATED)
+        .json(await this.mindmapService.genQuiz(genQuizDto));
+    } catch (error) {
+      this.logger.error(error);
+      return res.status(500).json({
+        message: 'Internal server error',
+      });
+    }
   }
 
   @Post('suggest-note')
@@ -115,7 +124,9 @@ export class MindmapController {
       ) {
         throw new BadRequestException('Document is required in summary type');
       }
-      return await this.mindmapService.suggest(suggestNoteDto);
+      return res
+        .status(HttpStatus.OK)
+        .json(await this.mindmapService.suggest(suggestNoteDto));
     } catch (error) {
       this.logger.error(error);
       return res.status(500).json({
