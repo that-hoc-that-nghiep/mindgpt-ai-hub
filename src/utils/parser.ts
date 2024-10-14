@@ -31,63 +31,54 @@ export const parseMermaidCode = (output: string) => {
 };
 
 export function parseMarkdownQuestionToJson(markdown: string): Question[] {
-  const lines = markdown.split('\n').map((line) => line.trim());
-  const result: Question[] = [];
+  const questionBlocks = markdown.split(/\n(?=### )/); // Split markdown by questions
+  const questions: Question[] = [];
 
-  let currentQuestion: string | null = null;
-  let currentAnswers: Answer[] = [];
-  let correctAnswer: string | null = null;
+  questionBlocks.forEach((block) => {
+    const lines = block.trim().split('\n');
 
-  for (const line of lines) {
-    // Ignore lines that don't start with ###, -, or >
-    if (
-      !line.startsWith('###') &&
-      !line.startsWith('-') &&
-      !line.startsWith('>')
-    ) {
-      continue;
+    if (lines.length < 3) return;
+
+    // Extract the question (the first line, starting with ###)
+    if (!lines[0].startsWith('###')) {
+      console.warn(`Invalid question format: ${lines[0]}`);
+      return;
+    }
+    const questionText = lines[0].replace(/^###\s*/, '').trim();
+
+    const answers: Answer[] = [];
+    let correctAnswer = '';
+
+    // Process each line after the question
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+
+      // Check for invalid lines
+      if (!line.startsWith('- ') && !line.startsWith('> ')) {
+        console.warn(`Skipping invalid line: ${line}`);
+        continue; // Skip invalid lines
+      }
+
+      // Extract answers (lines starting with "- ")
+      if (line.startsWith('- ')) {
+        const answerText = line.replace(/^- [A-D]:\s*/, '').trim();
+        answers.push({ answer: answerText, isCorrect: false });
+      }
+
+      // Extract the correct answer (line starting with "> ")
+      if (line.startsWith('> ')) {
+        correctAnswer = line.replace(/^>\s*/, '').trim();
+      }
     }
 
-    if (line.startsWith('###')) {
-      // Save the previous question if there's any
-      if (currentQuestion && currentAnswers.length > 0) {
-        result.push({
-          question: currentQuestion,
-          answers: currentAnswers,
-        });
-      }
-
-      // Start a new question
-      currentQuestion = line.replace('### ', '');
-      currentAnswers = [];
-      correctAnswer = null;
-    } else if (line.startsWith('-')) {
-      const answerMatch = line.match(/^-\s([A-D]):\s(.+)/);
-      if (answerMatch) {
-        const [, option, answerText] = answerMatch;
-        currentAnswers.push({
-          answer: answerText,
-          isCorrect: false, // Set to false initially, will update if correct
-        });
-      }
-    } else if (line.startsWith('>')) {
-      correctAnswer = line.replace('> ', '');
-      // Update the correct answer in the currentAnswers array
-      for (let answer of currentAnswers) {
-        if (answer.answer.startsWith(correctAnswer)) {
-          answer.isCorrect = true;
-        }
-      }
+    // Mark the correct answer
+    const correctIndex = correctAnswer.charCodeAt(0) - 65; // 'A' => 0, 'B' => 1, etc.
+    if (answers[correctIndex]) {
+      answers[correctIndex].isCorrect = true;
     }
-  }
 
-  // Add the last question if exists
-  if (currentQuestion && currentAnswers.length > 0) {
-    result.push({
-      question: currentQuestion,
-      answers: currentAnswers,
-    });
-  }
+    questions.push({ question: questionText, answers });
+  });
 
-  return result;
+  return questions;
 }

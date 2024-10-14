@@ -82,6 +82,8 @@ export class MindmapService {
 
       const retriever = await this.ragSerivice.getRetrieval(ids);
 
+      this.logger.log(`Documents id: ${ids.join(', ')}`);
+
       context = await retriever.invoke('');
     }
 
@@ -103,6 +105,8 @@ export class MindmapService {
     );
 
     console.log(AIResponseDto.of(extractMermaidCode(res), ids));
+
+    this.logger.log(`Mermaid: ${res}`);
 
     return AIResponseDto.of(extractMermaidCode(res), ids);
   }
@@ -151,6 +155,8 @@ export class MindmapService {
       }),
       context,
     });
+
+    this.logger.log(`Chat response: ${res}`);
 
     return AIResponseDto.of(res, chatMindmapDto.documentsId);
   }
@@ -211,6 +217,8 @@ export class MindmapService {
       context,
     });
 
+    this.logger.log(`Edit mindmap mermaid: ${res}`);
+
     return AIResponseDto.of(
       extractMermaidCode(res),
       editMindmapDto.documentsId,
@@ -267,6 +275,8 @@ export class MindmapService {
       context,
     });
 
+    this.logger.log(`Quiz markdown: ${res}`);
+
     return AIResponseDto.of(
       parseMarkdownQuestionToJson(res),
       genQuizDto.documentsId,
@@ -309,10 +319,13 @@ export class MindmapService {
       context,
     });
 
+    this.logger.log(`Suggestion: ${res}`);
+
     return AIResponseDto.of(res, suggestNoteDto.documentsId);
   }
 
   async deleteDocs(deleteDocsDto: DeleteDocsDto) {
+    this.logger.log(`Delete documents id: ${deleteDocsDto.ids.join(', ')}`);
     await this.ragSerivice.deleteDocs(deleteDocsDto.ids);
   }
 }
