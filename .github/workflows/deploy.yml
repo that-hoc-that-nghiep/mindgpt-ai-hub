@@ -28,11 +28,11 @@ jobs:
           SECRET: ${{ secrets.ENV }}
 
       - name: Build docker images
-        run: docker compose build
+        run: docker-compose build
 
   deploy:
     needs: build
     runs-on: self-hosted
     steps:
       - name: Deploy docker images
-        run: docker compose up app -d
+        run: docker-compose up app -d
