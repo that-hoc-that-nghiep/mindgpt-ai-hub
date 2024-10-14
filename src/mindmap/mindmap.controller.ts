@@ -7,6 +7,8 @@ import {
   Logger,
   Res,
   HttpStatus,
+  Delete,
+  Patch,
 } from '@nestjs/common';
 import { MindmapService } from './mindmap.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -17,6 +19,7 @@ import { EditMindmapDto } from './dto/edit-mindmap.dto';
 import { GenQuizDto } from './dto/gen-quiz.dto';
 import { SuggestNoteDto } from './dto/suggest-note.dto';
 import { Response } from 'express';
+import { DeleteDocsDto } from './dto/delete-docs.dto';
 
 @ApiTags('mindmap')
 @Controller('mindmap')
@@ -127,6 +130,20 @@ export class MindmapController {
       return res
         .status(HttpStatus.OK)
         .json(await this.mindmapService.suggest(suggestNoteDto));
+    } catch (error) {
+      this.logger.error(error);
+      return res.status(500).json({
+        message: 'Internal server error',
+      });
+    }
+  }
+
+  @Patch('delete-docs')
+  @ApiResponse({ status: 204 })
+  async deleteDocs(@Body() deleteDocsDto: DeleteDocsDto, @Res() res: Response) {
+    try {
+      await this.mindmapService.deleteDocs(deleteDocsDto);
+      return res.status(HttpStatus.NO_CONTENT);
     } catch (error) {
       this.logger.error(error);
       return res.status(500).json({

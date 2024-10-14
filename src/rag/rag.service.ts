@@ -85,4 +85,13 @@ export class RagService {
 
     return vectorStore.asRetriever();
   }
+
+  async deleteDocs(ids: string[]) {
+    const supabase = createClient<Database>(
+      this.configSerivce.get('SUPABASE_URL'),
+      this.configSerivce.get('SUPABASE_KEY'),
+    );
+
+    await supabase.from('all_documents').delete().in('id', ids);
+  }
 }

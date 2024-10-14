@@ -22,6 +22,7 @@ import { EditMindmapDto } from './dto/edit-mindmap.dto';
 import { GenQuizDto } from './dto/gen-quiz.dto';
 import { SuggestNoteDto } from './dto/suggest-note.dto';
 import { AIResponseDto } from './dto/ai-response.dto';
+import { DeleteDocsDto } from './dto/delete-docs.dto';
 
 @Injectable()
 export class MindmapService {
@@ -309,5 +310,9 @@ export class MindmapService {
     });
 
     return AIResponseDto.of(res, suggestNoteDto.documentsId);
+  }
+
+  async deleteDocs(deleteDocsDto: DeleteDocsDto) {
+    await this.ragSerivice.deleteDocs(deleteDocsDto.ids);
   }
 }
