@@ -1,7 +1,7 @@
 import { SupabaseVectorStore } from '@langchain/community/vectorstores/supabase';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 import { OpenAIEmbeddings } from '@langchain/openai';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient } from '@supabase/supabase-js';
 import { Env } from 'src/constant';
@@ -12,6 +12,8 @@ import { Database } from 'src/types/supabase';
 
 @Injectable()
 export class RagService {
+  private readonly logger = new Logger(RagService.name);
+
   constructor(
     private readonly configSerivce: ConfigService<typeof Env, true>,
   ) {}
@@ -28,8 +30,7 @@ export class RagService {
 
     const vectorStore = new SupabaseVectorStore(embeddings, {
       client: supabase,
-      tableName: 'documents',
-      queryName: 'match_documents',
+      tableName: 'all_documents',
     });
 
     const splitter = new RecursiveCharacterTextSplitter({
@@ -57,13 +58,23 @@ export class RagService {
     );
 
     const { data: docs } = await supabase
-      .from('documents')
+      .from('all_documents')
       .select('*')
       .in('id', ids);
 
-    await supabase.from('retrieve_documents').delete();
+    this.logger.log(
+      `Search documents: ${JSON.stringify(docs.map((doc) => doc.id))}`,
+    );
 
-    await supabase.from('retrieve_documents').insert(docs);
+    await supabase.from('documents').delete().neq('id', 0);
+
+    await supabase.from('documents').insert(
+      docs.map(({ content, embedding, metadata }) => ({
+        content,
+        embedding,
+        metadata,
+      })),
+    );
 
     const vectorStore = new SupabaseVectorStore(embeddings, {
       client: supabase,

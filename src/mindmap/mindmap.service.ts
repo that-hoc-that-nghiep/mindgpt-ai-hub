@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   ChatPromptTemplate,
   MessagesPlaceholder,
@@ -24,6 +24,7 @@ import { AIResponseDto } from './dto/ai-response.dto';
 
 @Injectable()
 export class MindmapService {
+  private readonly logger = new Logger(MindmapService.name);
   constructor(private readonly ragSerivice: RagService) {}
   async create(createMindmapDto: CreateMindmapDto) {
     const prompt = ChatPromptTemplate.fromMessages([
@@ -78,7 +79,9 @@ export class MindmapService {
 
       const retriever = await this.ragSerivice.getRetrieval(ids);
 
+      this.logger.warn('OK');
       context = await retriever.invoke('');
+      this.logger.warn('OK2');
     }
 
     const chain = prompt.pipe(llm).pipe(new StringOutputParser());

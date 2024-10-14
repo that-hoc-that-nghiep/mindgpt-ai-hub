@@ -4,6 +4,7 @@ import {
   Body,
   BadRequestException,
   Put,
+  Logger,
 } from '@nestjs/common';
 import { MindmapService } from './mindmap.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -17,18 +18,23 @@ import { SuggestNoteDto } from './dto/suggest-note.dto';
 @ApiTags('mindmap')
 @Controller('mindmap')
 export class MindmapController {
+  private readonly logger = new Logger(MindmapController.name);
   constructor(private readonly mindmapService: MindmapService) {}
 
   @Post('create')
   @ApiResponse({ status: 201, description: 'Mindmap created successfully' })
   async create(@Body() createMindmapDto: CreateMindmapDto) {
-    if (
-      createMindmapDto.type === MindmapType.SUMMARY &&
-      createMindmapDto.document === null
-    ) {
-      throw new BadRequestException('Document is required in summary type');
+    try {
+      if (
+        createMindmapDto.type === MindmapType.SUMMARY &&
+        createMindmapDto.document === null
+      ) {
+        throw new BadRequestException('Document is required in summary type');
+      }
+      return await this.mindmapService.create(createMindmapDto);
+    } catch (error) {
+      this.logger.error(error);
     }
-    return await this.mindmapService.create(createMindmapDto);
   }
 
   @Post('chat')

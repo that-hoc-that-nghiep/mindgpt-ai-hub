@@ -34,7 +34,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      documents: {
+      all_documents: {
         Row: {
           content: string | null
           embedding: string | null
@@ -51,6 +51,27 @@ export type Database = {
           content?: string | null
           embedding?: string | null
           id?: string
+          metadata?: Json | null
+        }
+        Relationships: []
+      }
+      documents: {
+        Row: {
+          content: string | null
+          embedding: string | null
+          id: number
+          metadata: Json | null
+        }
+        Insert: {
+          content?: string | null
+          embedding?: string | null
+          id?: number
+          metadata?: Json | null
+        }
+        Update: {
+          content?: string | null
+          embedding?: string | null
+          id?: number
           metadata?: Json | null
         }
         Relationships: []
@@ -120,27 +141,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      retrieve_documents: {
-        Row: {
-          content: string | null
-          embedding: string | null
-          id: string
-          metadata: Json | null
-        }
-        Insert: {
-          content?: string | null
-          embedding?: string | null
-          id: string
-          metadata?: Json | null
-        }
-        Update: {
-          content?: string | null
-          embedding?: string | null
-          id?: string
-          metadata?: Json | null
-        }
-        Relationships: []
       }
       users: {
         Row: {
