@@ -9,6 +9,7 @@ import { StringOutputParser } from '@langchain/core/output_parsers';
 import {
   extractMermaidCode,
   nodesToString,
+  parseMarkdownQuestionToJson,
   parseMermaidCode,
 } from 'src/utils/parser';
 import { MindmapType } from 'src/constant';
@@ -80,9 +81,7 @@ export class MindmapService {
 
       const retriever = await this.ragSerivice.getRetrieval(ids);
 
-      this.logger.warn('OK');
       context = await retriever.invoke('');
-      this.logger.warn('OK2');
     }
 
     const chain = prompt.pipe(llm).pipe(new StringOutputParser());
@@ -214,17 +213,19 @@ export class MindmapService {
     const prompt = ChatPromptTemplate.fromMessages([
       'system',
       `You are an expert mindmap designer and your task is generate a quiz to help them memorize the core ideas and their relationships based on the user's mindmap with following requirements:
-        1. Output format is markdown:
+        1. Output format is markdown, answer have ID and correct answer anote with > character:
           ### What is his name?
-            - Answer 1
-            - Answer 2
-            - Answer 3
-            - Answer 4
+            - A: Answer 1
+            - B: Answer 2
+            - C: Answer 3
+            - D: Answer 4
+          > A
           ### How old is he?
-            - Answer 1
-            - Answer 2
-            - Answer 3
-            - Answer 4
+            - A: Answer 1
+            - B: Answer 2
+            - C: Answer 3
+            - D: Answer 4
+          > C
         2. Questions can only be created related to the nodes the user selects. Absolutely do not create questions from other nodes. Mermaid diagrams are only used to understand context.
         3. Only one correct answer, the remaining answers are not too ridiculous will make the question easy.
         4. The language used in question and answer must be the same with the language used in the mermaid input.
@@ -253,12 +254,16 @@ export class MindmapService {
 
     const chain = prompt.pipe(llm).pipe(new StringOutputParser());
 
+    this.logger.warn('OK2');
     const res = await chain.invoke({
       input: `Please generate a quiz with ${genQuizDto.questionNumber} question based on these nodes: ${nodesToString(genQuizDto.slectedNodes)}. Full mermaid diagram: ${parseMermaidCode(genQuizDto.mermaid)}`,
       context,
     });
 
-    return AIResponseDto.of(res, genQuizDto.documentsId);
+    return AIResponseDto.of(
+      parseMarkdownQuestionToJson(res),
+      genQuizDto.documentsId,
+    );
   }
 
   async suggest(suggestNoteDto: SuggestNoteDto) {

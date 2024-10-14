@@ -86,20 +86,20 @@ export class MindmapController {
   @Post('gen-quiz')
   @ApiResponse({ status: 200 })
   async genQuiz(@Body() genQuizDto: GenQuizDto, @Res() res: Response) {
-    try {
-      if (
-        genQuizDto.type === MindmapType.SUMMARY &&
-        genQuizDto.document === null
-      ) {
-        throw new BadRequestException('Document is required in summary type');
-      }
-      return await this.mindmapService.genQuiz(genQuizDto);
-    } catch (error) {
-      this.logger.error(error);
-      return res.status(500).json({
-        message: 'Internal server error',
-      });
-    }
+    // try {
+    //   if (
+    //     genQuizDto.type === MindmapType.SUMMARY &&
+    //     genQuizDto.document === null
+    //   ) {
+    //     throw new BadRequestException('Document is required in summary type');
+    //   }
+    return await this.mindmapService.genQuiz(genQuizDto);
+    // } catch (error) {
+    //   this.logger.error(error);
+    //   return res.status(500).json({
+    //     message: 'Internal server error',
+    //   });
+    // }
   }
 
   @Post('suggest-note')
