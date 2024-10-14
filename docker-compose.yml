@@ -1,0 +1,28 @@
+services:
+  app:
+    build:
+      context: .
+      target: production
+    container_name: mindgpt-ai-hub
+    ports:
+      - '4000:4000'
+    environment:
+      NODE_ENV: production
+    volumes:
+      - .:/usr/src/app
+    restart: always
+
+  app-dev:
+    build:
+      context: .
+      target: development
+    container_name: mindgpt-ai-hub-dev
+    ports:
+      - '4000:4000'
+    environment:
+      NODE_ENV: development
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules # Avoid mounting node_modules from host
+    command: ['npm', 'run', 'start:dev']
+    restart: always
