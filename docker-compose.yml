@@ -8,6 +8,8 @@ services:
       - '4000:4000'
     environment:
       NODE_ENV: production
+    env_file:
+      - .env # Use .env file created by the action
     volumes:
       - .:/usr/src/app
     restart: always
@@ -21,6 +23,8 @@ services:
       - '4000:4000'
     environment:
       NODE_ENV: development
+    env_file:
+      - .env # Use .env file created by the action
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules # Avoid mounting node_modules from host
