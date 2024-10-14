@@ -254,7 +254,6 @@ export class MindmapService {
 
     const chain = prompt.pipe(llm).pipe(new StringOutputParser());
 
-    this.logger.warn('OK2');
     const res = await chain.invoke({
       input: `Please generate a quiz with ${genQuizDto.questionNumber} question based on these nodes: ${nodesToString(genQuizDto.slectedNodes)}. Full mermaid diagram: ${parseMermaidCode(genQuizDto.mermaid)}`,
       context,
