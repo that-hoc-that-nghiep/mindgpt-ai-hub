@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsObject, IsOptional } from 'class-validator';
+import { IsArray, IsEnum, IsObject, IsOptional } from 'class-validator';
 import { LLMModel, MindmapType } from 'src/constant';
 import { MindmapDocument } from './mindmap-document.dto';
 
@@ -23,4 +23,8 @@ export class BaseMindmapDto {
   @IsOptional()
   @IsObject()
   document: MindmapDocument | null;
+
+  @ApiProperty()
+  @IsArray()
+  documentsId: string[];
 }

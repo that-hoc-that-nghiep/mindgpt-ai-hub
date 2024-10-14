@@ -11,9 +11,8 @@ import {
   nodesToString,
   parseMermaidCode,
 } from 'src/utils/parser';
-import { Env, MindmapType } from 'src/constant';
+import { MindmapType } from 'src/constant';
 import { getDocFromUrl } from 'src/utils/file';
-import { ConfigService } from '@nestjs/config';
 import { RagService } from 'src/rag/rag.service';
 import { DocumentInterface } from '@langchain/core/documents';
 import { ChatMindmapDto } from './dto/chat-mindmap.dto';
@@ -21,13 +20,11 @@ import { AIMessage, HumanMessage } from '@langchain/core/messages';
 import { EditMindmapDto } from './dto/edit-mindmap.dto';
 import { GenQuizDto } from './dto/gen-quiz.dto';
 import { SuggestNoteDto } from './dto/suggest-note.dto';
+import { AIResponseDto } from './dto/ai-response.dto';
 
 @Injectable()
 export class MindmapService {
-  constructor(
-    private readonly configSerivce: ConfigService<typeof Env, true>,
-    private readonly ragSerivice: RagService,
-  ) {}
+  constructor(private readonly ragSerivice: RagService) {}
   async create(createMindmapDto: CreateMindmapDto) {
     const prompt = ChatPromptTemplate.fromMessages([
       'system',
@@ -69,6 +66,7 @@ export class MindmapService {
     });
 
     let context: DocumentInterface<Record<string, any>>[] = [];
+    let ids: string[] = [];
 
     if (createMindmapDto.type === MindmapType.SUMMARY) {
       const docs = await getDocFromUrl(
@@ -76,9 +74,11 @@ export class MindmapService {
         createMindmapDto.document.type,
       );
 
-      const retrieval = await this.ragSerivice.getRetrieval(docs);
+      ids = await this.ragSerivice.addToVectorStore(docs);
 
-      context = await retrieval.invoke('');
+      const retriever = await this.ragSerivice.getRetrieval(ids);
+
+      context = await retriever.invoke('');
     }
 
     const chain = prompt.pipe(llm).pipe(new StringOutputParser());
@@ -93,7 +93,7 @@ export class MindmapService {
       context,
     });
 
-    return extractMermaidCode(res);
+    return AIResponseDto.of(extractMermaidCode(res), ids);
   }
 
   async chat(chatMindmapDto: ChatMindmapDto) {
@@ -121,14 +121,10 @@ export class MindmapService {
     let context: DocumentInterface<Record<string, any>>[] = [];
 
     if (chatMindmapDto.type === MindmapType.SUMMARY) {
-      const docs = await getDocFromUrl(
-        chatMindmapDto.document.url,
-        chatMindmapDto.document.type,
+      const retriever = await this.ragSerivice.getRetrieval(
+        chatMindmapDto.documentsId,
       );
-
-      const retrieval = await this.ragSerivice.getRetrieval(docs);
-
-      context = await retrieval.invoke('');
+      context = await retriever.invoke('');
     }
 
     const chain = prompt.pipe(llm).pipe(new StringOutputParser());
@@ -191,14 +187,10 @@ export class MindmapService {
     let context: DocumentInterface<Record<string, any>>[] = [];
 
     if (editMindmapDto.type === MindmapType.SUMMARY) {
-      const docs = await getDocFromUrl(
-        editMindmapDto.document.url,
-        editMindmapDto.document.type,
+      const retriever = await this.ragSerivice.getRetrieval(
+        editMindmapDto.documentsId,
       );
-
-      const retrieval = await this.ragSerivice.getRetrieval(docs);
-
-      context = await retrieval.invoke('');
+      context = await retriever.invoke('');
     }
 
     const chain = prompt.pipe(llm).pipe(new StringOutputParser());
@@ -246,14 +238,10 @@ export class MindmapService {
     let context: DocumentInterface<Record<string, any>>[] = [];
 
     if (genQuizDto.type === MindmapType.SUMMARY) {
-      const docs = await getDocFromUrl(
-        genQuizDto.document.url,
-        genQuizDto.document.type,
+      const retriever = await this.ragSerivice.getRetrieval(
+        genQuizDto.documentsId,
       );
-
-      const retrieval = await this.ragSerivice.getRetrieval(docs);
-
-      context = await retrieval.invoke('');
+      context = await retriever.invoke('');
     }
 
     const chain = prompt.pipe(llm).pipe(new StringOutputParser());
@@ -289,14 +277,10 @@ export class MindmapService {
     let context: DocumentInterface<Record<string, any>>[] = [];
 
     if (suggestNoteDto.type === MindmapType.SUMMARY) {
-      const docs = await getDocFromUrl(
-        suggestNoteDto.document.url,
-        suggestNoteDto.document.type,
+      const retriever = await this.ragSerivice.getRetrieval(
+        suggestNoteDto.documentsId,
       );
-
-      const retrieval = await this.ragSerivice.getRetrieval(docs);
-
-      context = await retrieval.invoke('');
+      context = await retriever.invoke('');
     }
 
     const chain = prompt.pipe(llm).pipe(new StringOutputParser());
