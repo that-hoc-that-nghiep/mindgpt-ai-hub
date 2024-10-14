@@ -26,6 +26,7 @@ import { AIResponseDto } from './dto/ai-response.dto';
 export class MindmapService {
   private readonly logger = new Logger(MindmapService.name);
   constructor(private readonly ragSerivice: RagService) {}
+
   async create(createMindmapDto: CreateMindmapDto) {
     const prompt = ChatPromptTemplate.fromMessages([
       'system',
@@ -144,7 +145,7 @@ export class MindmapService {
       context,
     });
 
-    return res;
+    return AIResponseDto.of(res, chatMindmapDto.documentsId);
   }
 
   async edit(editMindmapDto: EditMindmapDto) {
@@ -203,7 +204,10 @@ export class MindmapService {
       context,
     });
 
-    return extractMermaidCode(res);
+    return AIResponseDto.of(
+      extractMermaidCode(res),
+      editMindmapDto.documentsId,
+    );
   }
 
   async genQuiz(genQuizDto: GenQuizDto) {
@@ -254,7 +258,7 @@ export class MindmapService {
       context,
     });
 
-    return res;
+    return AIResponseDto.of(res, genQuizDto.documentsId);
   }
 
   async suggest(suggestNoteDto: SuggestNoteDto) {
@@ -293,6 +297,6 @@ export class MindmapService {
       context,
     });
 
-    return res;
+    return AIResponseDto.of(res, suggestNoteDto.documentsId);
   }
 }
