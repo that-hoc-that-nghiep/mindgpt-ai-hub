@@ -1,38 +1,38 @@
-name: Deploy to AWS EC2
+name: Docker Compose Deploy CI
 
 on:
   push:
-    branches:
-      - master
+    branches: ['master']
+  workflow_dispatch:
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: self-hosted
 
     steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Set up SSH agent
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Archive project files (ignore changes)
+      - name: Make sure everything is correctly installed
         run: |
-          tar --exclude='./node_modules' --exclude='./.git' --ignore-failed-read -czf app.tar.gz .
+          if ! command -v docker &> /dev/null
+            then
+              echo "Cannot find docker, please install docker first"
+              exit
+            fi
+        shell: bash
 
-      - name: Copy archive to EC2
-        run: |
-          scp -o StrictHostKeyChecking=no app.tar.gz ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }}:/home/ubuntu/
+      - name: Create secret .env file
+        run: 'echo "$SECRET" > .env'
+        shell: bash
+        env:
+          SECRET: ${{ secrets.ENV }}
 
-      - name: SSH into EC2 and deploy
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }} << 'EOF'
-            cd /home/ubuntu
-            tar -xzf app.tar.gz -C ./app --strip-components=1
-            cd app
-            docker-compose down
-            docker-compose pull
-            docker-compose up -d --build
-          EOF
+      - name: Build docker images
+        run: docker compose build
+
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Deploy docker images
+        run: docker compose up app -d
