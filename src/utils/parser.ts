@@ -82,3 +82,16 @@ export function parseMarkdownQuestionToJson(markdown: string): Question[] {
 
   return questions;
 }
+
+export function extractExplanation(response: string): string {
+  // Split the response by the '---' symbol
+  const parts = response.split('---');
+
+  // If there's a second part, return the explanation (trim to remove extra spaces)
+  if (parts.length > 1) {
+    return parts[1].trim();
+  }
+
+  // Return an empty string if no explanation is found
+  return '';
+}

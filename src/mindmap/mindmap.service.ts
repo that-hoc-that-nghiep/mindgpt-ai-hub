@@ -7,6 +7,7 @@ import { CreateMindmapDto } from './dto/create-mindmap.dto';
 import { ChatOpenAI } from '@langchain/openai';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import {
+  extractExplanation,
   extractMermaidCode,
   nodesToString,
   parseMarkdownQuestionToJson,
@@ -36,13 +37,13 @@ export class MindmapService {
         1. The mindmap should help users grasp the core ideas and their relationships quickly.
         2. Use Mermaid syntax to visualize the mindmap, including components such as the central concept, main topics, and subtopics. The graph should be undirected and hierarchical. (e.g:
           graph TB
-          A["📘 Toán 12"]
-          B["📏 Hình học không gian"]
-          C["📐 Đại số"]
-          D["📊 Hình học tọa độ"]
-          E["📈 Phương trình bậc hai"]
-          F["📌 Cấp số cộng"]
-          G["📌 Cấp số nhân"]
+          A["📘 Node A Label"]
+          B["📏 Node B Label"]
+          C["📐 Node C Label"]
+          D["📊 Node D Label"]
+          E["📈 Node E Label"]
+          F["📌 Node F Label"]
+          G["📌 Node G Label"]
 
           A --> B
           A --> C
@@ -122,6 +123,7 @@ export class MindmapService {
         4. It is allowed to refer to the mermaid diagram to understand the content of the mindmap, however, it is only allowed to answer questions related to the nodes selected by the user.
         5. If there are documents context, you are only allowed to answer the knowledge contained in the documents and mermaid. Absolutely do not arbitrarily create answers
         6. Do not include selected nodes in the answer
+        7. Generate the mindmap mermaid code first, then explain in
 
         {context}`,
       ],
@@ -169,13 +171,13 @@ export class MindmapService {
         2. The mindmap should help users grasp the core ideas and their relationships quickly.
         3. Use Mermaid syntax to visualize the mindmap, including components such as the central concept, main topics, and subtopics. The graph should be undirected and hierarchical. (e.g:
           graph TB
-          A["📘 Toán 12"]
-          B["📏 Hình học không gian"]
-          C["📐 Đại số"]
-          D["📊 Hình học tọa độ"]
-          E["📈 Phương trình bậc hai"]
-          F["📌 Cấp số cộng"]
-          G["📌 Cấp số nhân"]
+          A["📘 Node A Label"]
+          B["📏 Node B Label"]
+          C["📐 Node C Label"]
+          D["📊 Node D Label"]
+          E["📈 Node E Label"]
+          F["📌 Node F Label"]
+          G["📌 Node G Label"]
 
           A --> B
           A --> C
@@ -190,7 +192,8 @@ export class MindmapService {
         7. Do not have any comment (remove all "%% comment") in mermaid.
         8. The language used in mindmap must be the same with the language used in the user's input
         9. Use icons at the begin on nodes' name to make the mindmap more exciting.
-        10.If there are documents context, You are only allowed to use the information contained in this resource. Absolutely not create other information outside the document
+        10. If there are documents context, You are only allowed to use the information contained in this resource. Absolutely not create other information outside the document
+        11. Create the mindmap mermaid first then explain the change below in markdown (do not include node ID in explain). Split the mindmap and explanation with this symbol ---.
         
         {context}`,
       'user',
@@ -220,7 +223,7 @@ export class MindmapService {
     this.logger.log(`Edit mindmap mermaid: ${res}`);
 
     return AIResponseDto.of(
-      extractMermaidCode(res),
+      { mindmap: extractMermaidCode(res), message: extractExplanation(res) },
       editMindmapDto.documentsId,
     );
   }
