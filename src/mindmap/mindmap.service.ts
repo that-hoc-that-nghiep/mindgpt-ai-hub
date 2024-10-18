@@ -108,7 +108,6 @@ export class MindmapService {
     console.log(AIResponseDto.of(extractMermaidCode(res), ids));
 
     this.logger.log(`Mermaid: ${res}`);
-
     return AIResponseDto.of(extractMermaidCode(res), ids);
   }
 
