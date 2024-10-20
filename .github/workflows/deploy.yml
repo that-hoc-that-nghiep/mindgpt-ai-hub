@@ -28,6 +28,3 @@ jobs:
           sudo docker-compose -f docker-compose.yml up -d app
         env:
           NODE_ENV: production
-
-      - name: Cleanup
-        run: sudo docker-compose -f docker-compose.yml down
