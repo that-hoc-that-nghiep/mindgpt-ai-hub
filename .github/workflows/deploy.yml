@@ -53,16 +53,12 @@ jobs:
           HOST: ${{ secrets.AWS_EC2_HOST }} # Your EC2 instance's public IP or hostname
           USER: ${{ secrets.AWS_EC2_USER }} # SSH user on your EC2 instance
         run: |
-          # Deploy using SSH
           ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
-            # Pull the latest image
             docker pull ${{ secrets.DOCKER_USERNAME }}/mindgpt-ai-hub:latest
 
-            # Stop and remove existing container (if any)
             docker stop mindgpt-ai-hub || true
             docker rm mindgpt-ai-hub || true
 
-            # Run the new container
             docker run -d --name mindgpt-ai-hub \
               --env-file /path/to/your/.env \
               -p 4000:4000 ${{ secrets.DOCKER_USERNAME }}/mindgpt-ai-hub:latest
