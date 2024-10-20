@@ -24,14 +24,10 @@ jobs:
       - name: Create .env file from secrets
         run: echo "${{ secrets.ENV }}" > .env
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build production environment
-        run: docker-compose -f docker-compose.yml build app
-
-      - name: Deploy production environment
+      # Build and deploy production environment using Docker Compose
+      - name: Build and deploy production environment
         run: |
+          docker-compose -f docker-compose.yml build app  # This uses the `production` target from the Dockerfile
           docker-compose -f docker-compose.yml up -d app
         env:
           NODE_ENV: production
