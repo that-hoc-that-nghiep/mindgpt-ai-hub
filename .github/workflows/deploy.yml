@@ -53,12 +53,12 @@ jobs:
           ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/mindgpt-ai-hub:latest
 
-            sudo docker stop mindgpt-ai-hub || true
-            sudo docker rm mindgpt-ai-hub || true
+            sudo docker stop ${{ secrets.DOCKER_USERNAME }}/mindgpt-ai-hub || true
+            sudo docker rm ${{ secrets.DOCKER_USERNAME }}/mindgpt-ai-hub || true
 
             echo $ENV > ~/mindgpt/mindgpt-ai-hub/.env
 
-            sudo docker run -d --name mindgpt-ai-hub \
+            sudo docker run -d --name ${{ secrets.DOCKER_USERNAME }}/mindgpt-ai-hub \
               --env-file ~/mindgpt/mindgpt-ai-hub/.env \
               -p 4000:4000 ${{ secrets.DOCKER_USERNAME }}/mindgpt-ai-hub:latest
           EOF
