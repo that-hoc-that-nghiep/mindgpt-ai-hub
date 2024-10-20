@@ -48,6 +48,7 @@ jobs:
         env:
           HOST: ${{ secrets.AWS_EC2_HOST }} # Your EC2 instance's public IP or hostname
           USER: ${{ secrets.AWS_EC2_USER }} # SSH user on your EC2 instance
+          ENV_CONTENT: ${{ secrets.ENV }}
         run: |
           ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/mindgpt-ai-hub:latest
@@ -56,7 +57,7 @@ jobs:
             sudo docker rm mindgpt-ai-hub || true
             sudo docker system prune -f
 
-            echo ${{ secrets.ENV }} > ~/mindgpt/mindgpt-ai-hub/.env
+            echo $ENV_CONTENT > ~/mindgpt/mindgpt-ai-hub/.env
 
             sudo docker run -d --name mindgpt-ai-hub \
               --env-file ~/mindgpt/mindgpt-ai-hub/.env \
