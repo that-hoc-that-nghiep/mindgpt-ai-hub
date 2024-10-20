@@ -1,30 +1,69 @@
-name: CI/CD Pipeline
+name: CI/CD for NestJS Application
 
 on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+
+    services:
+      docker:
+        image: docker:20.10.7
+        options: --privileged
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20.18.0' # LTS version
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
 
-      - name: Create .env file from secrets
-        run: echo "${{ secrets.ENV }}" > .env
-
-      # Build and deploy production environment using Docker Compose
-      - name: Build and deploy production environment
+      - name: Build Docker Image
         run: |
-          sudo docker-compose -f docker-compose.yml build app  # This uses the `production` target from the Dockerfile
-          sudo docker-compose -f docker-compose.yml up -d app
+          docker build --target production -t mindgpt-ai-hub:latest .
+
+      - name: Create .env file
+        run: |
+          echo "${{ secrets.ENV }}" > .env
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push Docker Image
+        run: |
+          docker tag mindgpt-ai-hub:latest ${{ secrets.DOCKER_USERNAME }}/mindgpt-ai-hub:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/mindgpt-ai-hub:latest
+
+      - name: Add SSH key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to Server
         env:
-          NODE_ENV: production
+          HOST: ${{ secrets.AWS_EC2_HOST }} # Your EC2 instance's public IP or hostname
+          USER: ${{ secrets.AWS_EC2_USER }} # SSH user on your EC2 instance
+        run: |
+          # Deploy using SSH
+          ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+            # Pull the latest image
+            docker pull ${{ secrets.DOCKER_USERNAME }}/mindgpt-ai-hub:latest
+
+            # Stop and remove existing container (if any)
+            docker stop mindgpt-ai-hub || true
+            docker rm mindgpt-ai-hub || true
+
+            # Run the new container
+            docker run -d --name mindgpt-ai-hub \
+              --env-file /path/to/your/.env \
+              -p 4000:4000 ${{ secrets.DOCKER_USERNAME }}/mindgpt-ai-hub:latest
+          EOF
