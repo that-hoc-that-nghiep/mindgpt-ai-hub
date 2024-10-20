@@ -16,7 +16,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20.17.0' # LTS version
+          node-version: '20.18.0' # LTS version
 
       - name: Create .env file from secrets
         run: echo "${{ secrets.ENV }}" > .env
