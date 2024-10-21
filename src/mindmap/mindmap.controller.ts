@@ -142,7 +142,7 @@ export class MindmapController {
   @ApiResponse({ status: 204 })
   async deleteDocs(@Body() deleteDocsDto: DeleteDocsDto, @Res() res: Response) {
     try {
-      await this.mindmapService.deleteDocs(deleteDocsDto);
+      this.mindmapService.deleteDocs(deleteDocsDto);
       return res.status(HttpStatus.NO_CONTENT);
     } catch (error) {
       this.logger.error(error);

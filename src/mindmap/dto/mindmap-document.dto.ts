@@ -1,12 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { DocumentType } from 'src/constant';
 
 export class MindmapDocument {
-  @IsString()
+  @IsEnum(DocumentType)
   @ApiProperty({
-    default: 'pdf',
+    default: DocumentType.PDF,
   })
-  type: string;
+  type: DocumentType;
 
   @IsString()
   @ApiProperty({
