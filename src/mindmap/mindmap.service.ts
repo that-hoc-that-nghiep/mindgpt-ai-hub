@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import {
   ChatPromptTemplate,
   MessagesPlaceholder,
@@ -74,18 +74,23 @@ export class MindmapService {
     let ids: string[] = [];
 
     if (createMindmapDto.type === MindmapType.SUMMARY) {
-      const docs = await getDocFromUrl(
-        createMindmapDto.document.url,
-        createMindmapDto.document.type,
-      );
+      try {
+        const docs = await getDocFromUrl(
+          createMindmapDto.document.url,
+          createMindmapDto.document.type,
+        );
 
-      ids = await this.ragSerivice.addToVectorStore(docs);
+        ids = await this.ragSerivice.addToVectorStore(docs);
 
-      const retriever = await this.ragSerivice.getRetrieval(ids);
+        const retriever = await this.ragSerivice.getRetrieval(ids);
 
-      this.logger.log(`Documents id: ${ids.join(', ')}`);
+        this.logger.log(`Documents id: ${ids.join(', ')}`);
 
-      context = await retriever.invoke('');
+        context = await retriever.invoke('');
+      } catch (error) {
+        this.logger.error(error);
+        return new BadRequestException(error.message);
+      }
     }
 
     const chain = prompt.pipe(llm).pipe(new StringOutputParser());
