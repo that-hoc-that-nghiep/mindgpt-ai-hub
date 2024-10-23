@@ -24,7 +24,7 @@ export const getDocFromUrl = async (
 
       case DocumentType.WEB:
         const webLoader = new CheerioWebBaseLoader(filePath, {
-          selector: 'article',
+          selector: 'article, #bodyContent',
         });
         docs = await webLoader.load();
         return docs;
