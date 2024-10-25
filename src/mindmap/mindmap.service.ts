@@ -197,7 +197,8 @@ export class MindmapService {
         8. The language used in mindmap must be the same with the language used in the user's input
         9. Use icons at the begin on nodes' name to make the mindmap more exciting.
         10. If there are documents context, You are only allowed to use the information contained in this resource. Absolutely not create other information outside the document
-        11. Create the mindmap mermaid first then explain the change below in markdown (do not include node ID in explain). Split the mindmap and explanation with this symbol ---.
+        11. Do not edit the IDs of other nodes. If there is a new node, the ID will follow the syntax <parent node ID> + <suffix> (e.g.: parent node ID is E so when adding a new node it will be E1)
+        12. Create the mindmap mermaid first then explain the change below in markdown (do not include node ID in explain). Split the mindmap and explanation with this symbol ---.
         
         {context}`,
       'user',
