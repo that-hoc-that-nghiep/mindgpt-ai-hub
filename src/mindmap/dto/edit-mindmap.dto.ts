@@ -26,5 +26,5 @@ export class EditMindmapDto extends BaseMindmapDto {
       },
     ],
   })
-  slectedNodes: SelectedNodeDto[];
+  selectedNodes: SelectedNodeDto[];
 }

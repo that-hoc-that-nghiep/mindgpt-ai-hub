@@ -30,5 +30,5 @@ export class GenQuizDto extends BaseMindmapDto {
       },
     ],
   })
-  slectedNodes: SelectedNodeDto[];
+  selectedNodes: SelectedNodeDto[];
 }

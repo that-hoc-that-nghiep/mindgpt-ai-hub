@@ -151,7 +151,7 @@ export class MindmapService {
     const chain = prompt.pipe(llm).pipe(new StringOutputParser());
 
     const res = await chain.invoke({
-      input: `${chatMindmapDto.prompt}. Please look at these nodes: ${nodesToString(chatMindmapDto.slectedNodes)}. Full mermaid diagram: ${parseMermaidCode(chatMindmapDto.mermaid)}`,
+      input: `${chatMindmapDto.prompt}. Please look at these nodes: ${nodesToString(chatMindmapDto.selectedNodes)}. Full mermaid diagram: ${parseMermaidCode(chatMindmapDto.mermaid)}`,
       chatHistory: chatMindmapDto.conversation.map((message) => {
         if (message.role === 'user') {
           return new HumanMessage(message.content);
@@ -221,7 +221,7 @@ export class MindmapService {
     const chain = prompt.pipe(llm).pipe(new StringOutputParser());
 
     const res = await chain.invoke({
-      input: `${editMindmapDto.prompt}. Please edit at these nodes: ${nodesToString(editMindmapDto.slectedNodes)}. Full mermaid diagram: ${parseMermaidCode(editMindmapDto.mermaid)}`,
+      input: `${editMindmapDto.prompt}. Please edit at these nodes: ${nodesToString(editMindmapDto.selectedNodes)}. Full mermaid diagram: ${parseMermaidCode(editMindmapDto.mermaid)}`,
       context,
     });
 
@@ -279,7 +279,7 @@ export class MindmapService {
     const chain = prompt.pipe(llm).pipe(new StringOutputParser());
 
     const res = await chain.invoke({
-      input: `Please generate a quiz with ${genQuizDto.questionNumber} question based on these nodes: ${nodesToString(genQuizDto.slectedNodes)}. Full mermaid diagram: ${parseMermaidCode(genQuizDto.mermaid)}`,
+      input: `Please generate a quiz with ${genQuizDto.questionNumber} question based on these nodes: ${nodesToString(genQuizDto.selectedNodes)}. Full mermaid diagram: ${parseMermaidCode(genQuizDto.mermaid)}`,
       context,
     });
 

@@ -43,5 +43,5 @@ export class ChatMindmapDto extends BaseMindmapDto {
       },
     ],
   })
-  slectedNodes: SelectedNodeDto[];
+  selectedNodes: SelectedNodeDto[];
 }
