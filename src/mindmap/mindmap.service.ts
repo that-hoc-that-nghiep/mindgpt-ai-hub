@@ -127,7 +127,6 @@ export class MindmapService {
         4. It is allowed to refer to the mermaid diagram to understand the content of the mindmap, however, it is only allowed to answer questions related to the nodes selected by the user.
         5. If there are documents context, you are only allowed to answer the knowledge contained in the documents and mermaid. Absolutely do not arbitrarily create answers
         6. Do not include selected nodes in the answer
-        7. Generate the mindmap mermaid code first, then explain in
 
         {context}`,
       ],
