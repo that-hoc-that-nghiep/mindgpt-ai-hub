@@ -53,13 +53,14 @@ export class MindmapService {
           C --> G
         )
         3. Always include Node IDs and wrap Node names in quotes (e.g., A["Central Concept"]).
-        4. The depth of the mindmap should be {depth} levels and each parent node must have {child} child nodes (except master node).
-        5. Separate the node and edge definitions, list nodes first and then connect them by edges (-->). Each child node is only allowed to have one parent node.
+        4. The depth of the mindmap should be {depth} levels and each parent node must have {child} child nodes (except root node).
+        5. Separate the node and edge definitions, list nodes first and then connect them by edges (-->).
         6. Make sure all the nodes and edges are connected (e.g., A --> B, B --> C, C --> D, D --> E, E --> F, F --> G).
         7. Do not have any comment (remove all "%% comment") in mermaid.
         8. The language used in mindmap must be the same with the language used in the user's input
         9. Use icons at the begin on nodes' name to make the mindmap more exciting.
         10.If there are documents context, You are only allowed to use the information contained in this resource. Absolutely not create other information outside the document
+        11. The structure of the mermaid must be similar to a tree structure (each child node can only have one parent node except root node).
         
         {context}`,
       'user',
@@ -189,7 +190,7 @@ export class MindmapService {
           C --> G
         )
         4. Always include Node IDs and wrap Node names in quotes (e.g., A["Central Concept"]).
-        5. Separate the node and edge definitions, list nodes first and then connect them by edges (-->). Each child node is only allowed to have one parent node.
+        5. Separate the node and edge definitions, list nodes first and then connect them by edges (-->). 
         6. Make sure all the nodes and edges are connected (e.g., A --> B, B --> C, C --> D, D --> E, E --> F, F --> G).
         7. Do not have any comment (remove all "%% comment") in mermaid.
         8. The language used in mindmap must be the same with the language used in the user's input
@@ -197,6 +198,7 @@ export class MindmapService {
         10. If there are documents context, You are only allowed to use the information contained in this resource. Absolutely not create other information outside the document
         11. Do not edit the IDs of other nodes. If there is a new node, the ID will follow the syntax <parent node ID> + <suffix> (e.g.: parent node ID is E so when adding a new node it will be E1)
         12. Create the mindmap mermaid first then explain the change below in markdown (do not include node ID in explain). Split the mindmap and explanation with this symbol ---.
+        13. The structure of the mermaid must be similar to a tree structure (each child node can only have one parent node except root node).
         
         {context}`,
       'user',
