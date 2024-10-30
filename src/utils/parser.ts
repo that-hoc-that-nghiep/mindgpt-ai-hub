@@ -95,3 +95,11 @@ export function extractExplanation(response: string): string {
   // Return an empty string if no explanation is found
   return '';
 }
+
+export const getMarkdownMessage = (msg: string) => {
+  const matches = msg.match(/```markdown([\s\S]*?)```/);
+  if (matches) {
+    return matches[1];
+  }
+  return msg;
+};

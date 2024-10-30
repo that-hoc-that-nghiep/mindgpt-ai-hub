@@ -9,6 +9,7 @@ import { StringOutputParser } from '@langchain/core/output_parsers';
 import {
   extractExplanation,
   extractMermaidCode,
+  getMarkdownMessage,
   nodesToString,
   parseMarkdownQuestionToJson,
   parseMermaidCode,
@@ -163,7 +164,10 @@ export class MindmapService {
 
     this.logger.log(`Chat response: ${res}`);
 
-    return AIResponseDto.of(res, chatMindmapDto.documentsId);
+    return AIResponseDto.of(
+      getMarkdownMessage(res),
+      chatMindmapDto.documentsId,
+    );
   }
 
   async edit(editMindmapDto: EditMindmapDto) {
