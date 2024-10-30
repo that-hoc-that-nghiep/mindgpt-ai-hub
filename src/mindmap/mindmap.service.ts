@@ -333,7 +333,7 @@ export class MindmapService {
 
     this.logger.log(`Suggestion: ${res}`);
 
-    return AIResponseDto.of(res, suggestNoteDto.documentsId);
+    return AIResponseDto.of(getMarkdownMessage(res), suggestNoteDto.documentsId);
   }
 
   async deleteDocs(deleteDocsDto: DeleteDocsDto) {
