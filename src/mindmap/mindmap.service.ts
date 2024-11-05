@@ -152,7 +152,7 @@ export class MindmapService {
     const chain = prompt.pipe(llm).pipe(new StringOutputParser());
 
     const res = await chain.invoke({
-      input: `${chatMindmapDto.prompt}. Please look at these nodes: ${nodesToString(chatMindmapDto.selectedNodes)}. Full mermaid diagram: ${parseMermaidCode(chatMindmapDto.mermaid)}`,
+      input: `${chatMindmapDto.prompt}. Vui lòng giải thích những node này: ${nodesToString(chatMindmapDto.selectedNodes)}. Toàn bộ mindmap thể hiện dưới dạng mermaid: ${parseMermaidCode(chatMindmapDto.mermaid)}`,
       chatHistory: chatMindmapDto.conversation.map((message) => {
         if (message.role === 'user') {
           return new HumanMessage(message.content);
@@ -226,7 +226,7 @@ export class MindmapService {
     const chain = prompt.pipe(llm).pipe(new StringOutputParser());
 
     const res = await chain.invoke({
-      input: `${editMindmapDto.prompt}. Please edit at these nodes: ${nodesToString(editMindmapDto.selectedNodes)}. Full mermaid diagram: ${parseMermaidCode(editMindmapDto.mermaid)}`,
+      input: `${editMindmapDto.prompt}. Vui lòng chỉnh sửa những node này: ${nodesToString(editMindmapDto.selectedNodes)}. Toàn bộ mindmap thể hiện dưới dạng mermaid: ${parseMermaidCode(editMindmapDto.mermaid)}`,
       context,
     });
 
@@ -304,7 +304,7 @@ export class MindmapService {
         2. Answers have a specific layout structure.
         3. It is allowed to refer to the mermaid diagram to understand the content of the mindmap, however, it is only allowed to answer questions related to the nodes selected by the user.
         4. If there are documents context, you are only allowed to answer the knowledge contained in the documents and mermaid. Absolutely do not arbitrarily create answers
-        5. Do not include selected nodes in the answer
+        5. Do not include selected node ID in the answer
 
         {context}`,
       'user',
