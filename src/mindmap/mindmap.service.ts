@@ -70,6 +70,9 @@ export class MindmapService {
 
     const llm = new ChatOpenAI({
       model: createMindmapDto.llm,
+      configuration: {
+        baseURL: "https://api.yescale.io/v1",
+      },
     });
 
     let context: DocumentInterface<Record<string, any>>[] = [];
@@ -138,6 +141,9 @@ export class MindmapService {
 
     const llm = new ChatOpenAI({
       model: chatMindmapDto.llm,
+      configuration: {
+        baseURL: "https://api.yescale.io/v1",
+      },
     });
 
     let context: DocumentInterface<Record<string, any>>[] = [];
@@ -212,6 +218,9 @@ export class MindmapService {
 
     const llm = new ChatOpenAI({
       model: editMindmapDto.llm,
+      configuration: {
+        baseURL: "https://api.yescale.io/v1",
+      },
     });
 
     let context: DocumentInterface<Record<string, any>>[] = [];
@@ -270,6 +279,9 @@ export class MindmapService {
 
     const llm = new ChatOpenAI({
       model: genQuizDto.llm,
+      configuration: {
+        baseURL: "https://api.yescale.io/v1",
+      },
     });
 
     let context: DocumentInterface<Record<string, any>>[] = [];
@@ -313,6 +325,9 @@ export class MindmapService {
 
     const llm = new ChatOpenAI({
       model: suggestNoteDto.llm,
+      configuration: {
+        baseURL: "https://api.yescale.io/v1",
+      },
     });
 
     let context: DocumentInterface<Record<string, any>>[] = [];
